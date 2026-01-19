@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ZiNail Art CRM - Login</title>
+  <style>
+    :root {
+      --pink-primary: #ff69b4;
+      --pink-light: #fff0f5;
+      --pink-soft: #ffe6f2;
+      --pink-medium: #ffb6c1;
+      --text-dark: #2d2d2d;
+      --white: #ffffff;
+      --error: #e74c3c;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: radial-gradient(circle at 30% 20%, rgba(255,105,180,0.08) 0%, transparent 40%),
+                  radial-gradient(circle at 70% 80%, rgba(255,182,193,0.12) 0%, transparent 50%),
+                  linear-gradient(135deg, #fff0f5 0%, #ffe6f2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 15px 40px rgba(255,105,180,0.18);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    h1 {
+      color: var(--pink-primary);
+      font-size: 2.4rem;
+      font-weight: 700;
+      margin: 0 0 36px;
+    }
+
+    .role-selector {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .role-btn {
+      padding: 12px 32px;
+      border: none;
+      border-radius: 999px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .role-btn.active,
+    .role-btn:hover {
+      background: var(--pink-primary);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(255,105,180,0.3);
+    }
+
+    .role-btn:not(.active) {
+      background: var(--pink-soft);
+      color: var(--pink-primary);
+    }
+
+    .form-group {
+      margin-bottom: 28px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      color: var(--text-dark);
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 18px;
+      border: 2px solid var(--pink-medium);
+      border-radius: 12px;
+      font-size: 1.05rem;
+      transition: all 0.25s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--pink-primary);
+      box-shadow: 0 0 0 4px rgba(255,105,180,0.15);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--pink-primary);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s;
+      margin-top: 12px;
+    }
+
+    .login-btn:hover:not(:disabled) {
+      background: #ff1493;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255,105,180,0.3);
+    }
+
+    .login-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .error-message {
+      color: var(--error);
+      font-size: 0.9rem;
+      margin-top: 8px;
+      display: none;
+    }
+
+    @media (max-width: 480px) {
+      .login-container { padding: 36px 24px; }
+      h1 { font-size: 2.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <h1>ZiNail Art CRM</h1>
+
+    <div class="role-selector">
+      <button class="role-btn active">Admin</button>
+      <button class="role-btn">Owner</button>
+    </div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" value="zinail_art" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" value="12345678" required>
+      </div>
+
+      <button type="submit" class="login-btn" id="loginButton">Login</button>
+      <div class="error-message" id="errorMsg">Harap isi username dan password terlebih dahulu</div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('loginButton');
+    const errorMsg = document.getElementById('errorMsg');
+
+    // Cek apakah form valid setiap kali input berubah
+    function checkFormValidity() {
+      const isFilled = usernameInput.value.trim() !== '' && passwordInput.value.trim() !== '';
+      loginBtn.disabled = !isFilled;
+      errorMsg.style.display = isFilled ? 'none' : 'block';
+    }
+
+    // Jalankan pengecekan awal
+    checkFormValidity();
+
+    // Update status tombol setiap input berubah
+    usernameInput.addEventListener('input', checkFormValidity);
+    passwordInput.addEventListener('input', checkFormValidity);
+
+    // Proses login ketika form disubmit
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      // Cek lagi sebelum redirect (untuk keamanan ekstra)
+      if (usernameInput.value.trim() && passwordInput.value.trim()) {
+        // Redirect ke dashboard
+        window.location.href = 'dashboard.html';
+      }
+    });
+
+    // Toggle role (opsional, hanya visual)
+    document.querySelectorAll('.role-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
