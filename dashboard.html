@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard - Nill Nail Art CRM</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  
+  <!-- Chart.js CDN (versi terbaru stabil per 2025/2026) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --pink-primary: #ff69b4;
+      --pink-light: #fff0f5;
+      --pink-soft: #ffe6f2;
+      --pink-medium: #ffb6c1;
+      --text-dark: #2d2d2d;
+      --text-light: #6b7280;
+      --white: #ffffff;
+      --green-confirm: #10b981;
+      --shadow-md: 0 10px 15px -3px rgba(255,105,180,0.12);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--pink-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+    }
+
+    /* Sidebar & Top Bar (sama seperti halaman lain) */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 240px;
+      background: var(--white);
+      box-shadow: 2px 0 10px rgba(255,105,180,0.08);
+      transition: transform 0.3s ease-in-out;
+      z-index: 1000;
+      padding: 24px 20px;
+    }
+
+    .sidebar.closed { transform: translateX(-100%); }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .sidebar-header h2 { color: var(--pink-primary); font-size: 1.65rem; font-weight: 600; }
+
+    .nav-list { list-style: none; }
+
+    .nav-item { margin: 8px 0; }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--text-dark);
+      text-decoration: none;
+      padding: 12px 16px;
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+    
+    .sidebar-header button { color: var(--pink-primary);}
+
+    .nav-link:hover, .nav-link.active {
+      background: var(--pink-soft);
+      color: var(--pink-primary);
+    }
+
+    .top-bar {
+      background: var(--pink-primary);
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 900;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .menu-toggle {
+      font-size: 1.9rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: white;
+    }
+
+    .user-area { display: flex; align-items: center; gap: 20px; }
+
+    .notification { font-size: 1.5rem; cursor: pointer; }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--pink-medium);
+      display: grid;
+      place-items: center;
+      font-size: 1.2rem;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 0;
+      padding: 20px;
+      transition: margin-left 0.3s ease;
+    }
+
+    .main-content.shifted { margin-left: 240px; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(255,105,180,0.08);
+      text-align: center;
+    }
+
+    .stat-card.blue { background: #e6f3ff; color: #1e90ff; }
+    .stat-card.green { background: #e6fff5; color: #28a745; }
+
+    .stat-value { font-size: 2.1rem; font-weight: 700; margin: 8px 0; }
+    .stat-label { color: var(--text-light); font-size: 0.95rem; }
+
+    .section-title {
+      color: var(--pink-primary);
+      margin: 0 0 16px;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .schedule-list {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(255,105,180,0.08);
+      margin-bottom: 30px;
+    }
+
+    .schedule-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--pink-soft);
+      padding: 14px 18px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      font-size: 0.97rem;
+    }
+
+    .schedule-time { color: var(--pink-primary); font-weight: 600; }
+
+    .schedule-status {
+      background: var(--white);
+      padding: 6px 12px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      color: #28a745;
+      border: 1px solid #28a745;
+    }
+
+    .chart-section {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 15px rgba(255,105,180,0.08);
+    }
+
+    .charts-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      height: 260px;
+    }
+
+    @media (max-width: 992px) {
+      .main-content.shifted { margin-left: 0; }
+      .charts-container { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+      .stat-value { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar closed" id="sidebar">
+    <div class="sidebar-header">
+      <h2>ZiNail Art</h2>
+      <button class="menu-toggle" id="closeSidebar">×</button>
+    </div>
+    <ul class="nav-list">
+      <li class="nav-item"><a href="dashboard.html" class="nav-link active"><i class="fas fa-home"></i> Dashboard</a></li>
+      <li class="nav-item"><a href="customers.html" class="nav-link"><i class="fas fa-users"></i> Customers</a></li>
+      <li class="nav-item"><a href="booking.html" class="nav-link"><i class="fas fa-calendar-alt"></i> Booking</a></li>
+      <li class="nav-item"><a href="campaign.html" class="nav-link"><i class="fas fa-bullhorn"></i> Campaign</a></li>
+      <li class="nav-item"><a href="feedback.html" class="nav-link"><i class="fas fa-star"></i> Feedback & Report</a></li>
+    </ul>
+  </aside>
+
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <button class="menu-toggle" id="toggleSidebar">☰</button>
+    <div>Dashboard</div>
+    <div class="user-area">
+      <span class="notification">🔔</span>
+      <div class="avatar"><a href="index.html">👩‍🦰</a></div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content" id="mainContent">
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Today's Bookings</div>
+        <div class="stat-value">8</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-value">Rp12.500.000</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Active Clients</div>
+        <div class="stat-value">120</div>
+      </div>
+    </div>
+
+    <!-- Schedule for Today -->
+    <section class="schedule-list">
+      <h3 class="section-title">Schedule for Today</h3>
+      <div class="schedule-item">
+        <div><strong>Bam</strong> • Spam - Apm</div>
+        <div><span class="schedule-time">12:00 m</span> <span class="schedule-status">Open →</span></div>
+      </div>
+      <div class="schedule-item">
+        <div><strong>Mom</strong> • 8.30am - Apm</div>
+        <div><span class="schedule-time">12:00 m</span> <span class="schedule-status">Open →</span></div>
+      </div>
+      <div class="schedule-item">
+        <div><strong>Bam</strong> • 6:00pm - Apm</div>
+        <div><span class="schedule-time">12:00 m</span> <span class="schedule-status">Open →</span></div>
+      </div>
+    </section>
+
+    <!-- Client Statistics - dengan Chart.js -->
+    <section class="chart-section">
+      <h3 class="section-title">Client Statistics</h3>
+      <div class="charts-container">
+        
+        <!-- Line Chart: Visits -->
+        <div>
+          <div style="margin-bottom:12px; font-weight:500;">Visits</div>
+          <div class="chart-wrapper">
+            <canvas id="visitsChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Bar Chart: Genre (Kategori Layanan) -->
+        <div>
+          <div style="margin-bottom:12px; font-weight:500;">Genre</div>
+          <div class="chart-wrapper">
+            <canvas id="genreChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // Sidebar toggle (sama seperti halaman lain)
+    const toggleBtn = document.getElementById('toggleSidebar');
+    const closeBtn = document.getElementById('closeSidebar');
+    const sidebar = document.getElementById('sidebar');
+
+    function openSidebar() { sidebar.classList.remove('closed'); sidebar.classList.add('open'); }
+    function closeSidebar() { sidebar.classList.remove('open'); sidebar.classList.add('closed'); }
+
+    toggleBtn.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+    closeBtn.addEventListener('click', closeSidebar);
+
+    document.addEventListener('click', e => {
+      if (window.innerWidth <= 992 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target) && sidebar.classList.contains('open')) {
+        closeSidebar();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 992) {
+        sidebar.classList.remove('open', 'closed');
+        sidebar.classList.add('open');
+      } else closeSidebar();
+    });
+
+    if (window.innerWidth <= 992) closeSidebar(); else openSidebar();
+
+    // Chart.js - Visits (Line Chart)
+    const visitsCtx = document.getElementById('visitsChart').getContext('2d');
+    new Chart(visitsCtx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+        datasets: [{
+          label: 'Jumlah Kunjungan',
+          data: [65, 59, 80, 81, 56, 55, 40, 88, 72, 95, 110, 120],
+          borderColor: '#ff69b4',
+          backgroundColor: 'rgba(255, 105, 180, 0.2)',
+          tension: 0.4,
+          fill: true,
+          pointBackgroundColor: '#ff69b4',
+          pointBorderColor: '#fff',
+          pointHoverRadius: 8,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: 'rgba(255,105,180,0.1)' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+
+    // Chart.js - Genre (Bar Chart)
+    const genreCtx = document.getElementById('genreChart').getContext('2d');
+    new Chart(genreCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Gel Nail', 'Classic Mani', 'Floral', 'French', 'Ombre', '3D Art'],
+        datasets: [{
+          label: 'Jumlah',
+          data: [42, 35, 28, 19, 15, 12],
+          backgroundColor: [
+            '#ff69b4',
+            '#ffb6c1',
+            '#ff8c99',
+            '#ff1493',
+            '#db7093',
+            '#c71585'
+          ],
+          borderColor: '#fff',
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: 'rgba(255,105,180,0.1)' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

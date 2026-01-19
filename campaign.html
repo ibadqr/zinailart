@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Campaign & Follow-Up - Nill Nail Art CRM</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    :root {
+      --pink-primary: #ff69b4;
+      --pink-light: #fff0f5;
+      --pink-soft: #ffe6f2;
+      --pink-medium: #ffb6c1;
+      --text-dark: #2d2d2d;
+      --text-light: #6b7280;
+      --white: #ffffff;
+      --shadow-md: 0 10px 15px -3px rgba(255,105,180,0.12);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--pink-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+    }
+
+    /* Sidebar (sama seperti halaman lain) */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 240px;
+      background: var(--white);
+      box-shadow: 2px 0 10px rgba(255,105,180,0.08);
+      transition: transform 0.3s ease-in-out;
+      z-index: 1000;
+      padding: 24px 20px;
+    }
+
+    .sidebar.closed { transform: translateX(-100%); }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .sidebar-header h2 {
+      color: var(--pink-primary);
+      font-size: 1.65rem;
+      font-weight: 600;
+    }
+    
+    .sidebar-header button { color: var(--pink-primary);}
+
+    .nav-list { list-style: none; }
+
+    .nav-item { margin: 8px 0; }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--text-dark);
+      text-decoration: none;
+      padding: 12px 16px;
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: var(--pink-soft);
+      color: var(--pink-primary);
+    }
+
+    /* Top Bar */
+    .top-bar {
+      background: var(--pink-primary);
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 900;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .menu-toggle {
+      font-size: 1.9rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: white;
+    }
+
+    .user-area { display: flex; align-items: center; gap: 20px; }
+
+    .notification { font-size: 1.5rem; cursor: pointer; }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--pink-medium);
+      display: grid;
+      place-items: center;
+      font-size: 1.2rem;
+    }
+
+    .main-content {
+      padding: 32px 24px;
+      transition: margin-left 0.3s ease-in-out;
+    }
+
+    @media (min-width: 993px) {
+      .sidebar { transform: translateX(0); }
+      .main-content { margin-left: 240px; }
+      .menu-toggle { display: none; }
+    }
+
+    @media (max-width: 992px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; padding: 24px 16px; }
+    }
+
+    /* Campaign Content */
+    .campaign-container {
+      max-width: 800px;
+      margin: 0 auto;
+      display: grid;
+      gap: 32px;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .card h2 {
+      color: var(--pink-primary);
+      margin: 0 0 20px;
+      font-size: 1.45rem;
+      font-weight: 600;
+    }
+
+    /* Send Promotion */
+    .promotion-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .promo-btn {
+      flex: 1;
+      min-width: 140px;
+      padding: 16px 24px;
+      border: none;
+      border-radius: 50px;
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .promo-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(255,105,180,0.25);
+    }
+
+    .new { background: var(--pink-primary); }
+    .loyal { background: #ff8c99; }
+    .inactive { background: #ffb6c1; }
+
+    /* Send Reminder */
+    .reminder-options {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .reminder-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.05rem;
+      color: var(--text-dark);
+    }
+
+    input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      accent-color: var(--pink-primary);
+      cursor: pointer;
+    }
+
+    label {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    @media (max-width: 600px) {
+      .promotion-buttons { flex-direction: column; }
+      .promo-btn { min-width: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar closed" id="sidebar">
+    <div class="sidebar-header">
+      <h2>ZiNail Art</h2>
+      <button class="menu-toggle" id="closeSidebar">×</button>
+    </div>
+    <ul class="nav-list">
+      <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
+      <li class="nav-item"><a href="customers.html" class="nav-link"><i class="fas fa-users"></i> Customers</a></li>
+      <li class="nav-item"><a href="booking.html" class="nav-link"><i class="fas fa-calendar-alt"></i> Booking</a></li>
+      <li class="nav-item"><a href="campaign.html" class="nav-link active"><i class="fas fa-bullhorn"></i> Campaign</a></li>
+      <li class="nav-item"><a href="feedback.html" class="nav-link"><i class="fas fa-star"></i> Feedback & Report</a></li>
+    </ul>
+  </aside>
+
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <button class="menu-toggle" id="toggleSidebar">☰</button>
+    <div>Campaign</div>
+    <div class="user-area">
+      <span class="notification">🔔</span>
+      <div class="avatar"><a href="index.html">👩‍🦰</a></div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content" id="mainContent">
+    <div class="campaign-container">
+
+      <!-- Send Promotion -->
+      <div class="card">
+        <h2>Send Promotion</h2>
+        <div class="promotion-buttons">
+          <button class="promo-btn new">New Clients</button>
+          <button class="promo-btn loyal">Loyal Clients</button>
+          <button class="promo-btn inactive">Inactive Clients</button>
+        </div>
+      </div>
+
+      <!-- Send Reminder -->
+      <div class="card">
+        <h2>Send Reminder</h2>
+        <div class="reminder-options">
+          <div class="reminder-item">
+            <input type="checkbox" id="appointment" checked>
+            <label for="appointment">Appointment Reminder</label>
+          </div>
+          <div class="reminder-item">
+            <input type="checkbox" id="revisit" checked>
+            <label for="revisit">Revisit Offer</label>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    // Sidebar toggle (sama seperti halaman lain)
+    const toggleBtn = document.getElementById('toggleSidebar');
+    const closeBtn = document.getElementById('closeSidebar');
+    const sidebar = document.getElementById('sidebar');
+
+    function openSidebar() { sidebar.classList.remove('closed'); sidebar.classList.add('open'); }
+    function closeSidebar() { sidebar.classList.remove('open'); sidebar.classList.add('closed'); }
+
+    toggleBtn.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+    closeBtn.addEventListener('click', closeSidebar);
+
+    document.addEventListener('click', e => {
+      if (window.innerWidth <= 992 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target) && sidebar.classList.contains('open')) {
+        closeSidebar();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 992) {
+        sidebar.classList.remove('open', 'closed');
+        sidebar.classList.add('open');
+      } else closeSidebar();
+    });
+
+    if (window.innerWidth <= 992) closeSidebar(); else openSidebar();
+  </script>
+</body>
+</html>

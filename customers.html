@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Customer Management - ZiNail Art CRM</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    :root {
+      --pink-primary: #ff69b4;
+      --pink-light: #fff0f5;
+      --pink-soft: #ffe6f2;
+      --pink-medium: #ffb6c1;
+      --text-dark: #2d2d2d;
+      --text-light: #6b7280;
+      --white: #ffffff;
+      --green-confirm: #10b981;
+      --shadow-md: 0 10px 15px -3px rgba(255,105,180,0.12);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--pink-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+    }
+
+    /* Sidebar & Top Bar (sama seperti halaman lain) */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 240px;
+      background: var(--white);
+      box-shadow: 2px 0 10px rgba(255,105,180,0.08);
+      transition: transform 0.3s ease-in-out;
+      z-index: 1000;
+      padding: 24px 20px;
+    }
+
+    .sidebar.closed { transform: translateX(-100%); }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .sidebar-header h2 { color: var(--pink-primary); font-size: 1.65rem; font-weight: 600; }
+
+    .nav-list { list-style: none; }
+
+    .nav-item { margin: 8px 0; }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--text-dark);
+      text-decoration: none;
+      padding: 12px 16px;
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+    
+    .sidebar-header button { color: var(--pink-primary);}
+
+    .nav-link:hover, .nav-link.active {
+      background: var(--pink-soft);
+      color: var(--pink-primary);
+    }
+
+    .top-bar {
+      background: var(--pink-primary);
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 900;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .menu-toggle {
+      font-size: 1.9rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: white;
+    }
+
+    .user-area { display: flex; align-items: center; gap: 20px; }
+
+    .notification { font-size: 1.5rem; cursor: pointer; }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--pink-medium);
+      display: grid;
+      place-items: center;
+      font-size: 1.2rem;
+    }
+
+    /* Main Content */
+    .main-content {
+      padding: 20px;
+      transition: margin-left 0.3s ease-in-out;
+    }
+
+    /* Responsive */
+    @media (min-width: 993px) {
+      .sidebar { transform: translateX(0); }
+      .sidebar.closed { transform: translateX(0); }
+      .main-content { margin-left: 240px; }
+      .menu-toggle { display: none; }
+    }
+
+    @media (max-width: 992px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+    }
+
+    /* Customer Management Specific */
+    .search-container {
+      padding: 20px;
+      background: var(--white);
+      margin: 0 20px 20px;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(255,105,180,0.08);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 14px 20px;
+      border: 1px solid var(--pink-medium);
+      border-radius: 12px;
+      font-size: 1rem;
+      background: var(--pink-soft);
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--pink-primary);
+      background: white;
+    }
+
+    .customer-list {
+      display: grid;
+      gap: 16px;
+      padding: 0 20px;
+    }
+
+    .customer-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 18px 20px;
+      box-shadow: 0 3px 12px rgba(255,105,180,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .customer-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(255,105,180,0.15);
+    }
+
+    .customer-info strong {
+      color: var(--pink-primary);
+      font-size: 1.1rem;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .customer-info span, .customer-info small {
+      display: block;
+      color: var(--text-light);
+    }
+
+    .profile-btn {
+      background: var(--pink-primary);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .profile-btn:hover { background: #ff1493; }
+
+    /* Profile Modal */
+    .profile-modal {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 380px;
+      height: 100%;
+      background: var(--white);
+      box-shadow: -8px 0 25px rgba(0,0,0,0.15);
+      transition: right 0.4s ease;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .profile-modal.active { right: 0; }
+
+    .modal-header {
+      background: var(--pink-primary);
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.8rem;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 24px;
+      text-align: center;
+    }
+
+    .profile-img {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: var(--pink-soft);
+      margin: 0 auto 16px;
+      display: block;
+      object-fit: cover;
+    }
+
+    .profile-name {
+      font-size: 1.4rem;
+      color: var(--pink-primary);
+      margin-bottom: 8px;
+    }
+
+    .profile-contact {
+      color: var(--text-light);
+      margin-bottom: 24px;
+    }
+
+    .tab-buttons {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: var(--pink-soft);
+      color: var(--pink-primary);
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: var(--pink-primary);
+      color: white;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .preference-list {
+      list-style: none;
+    }
+
+    .preference-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--pink-soft);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    .heart-icon { color: #ff1493; }
+
+    @media (max-width: 768px) {
+      .profile-modal { width: 100%; right: -100%; }
+      .customer-list { padding: 0 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar closed" id="sidebar">
+    <div class="sidebar-header">
+      <h2>ZiNail Art</h2>
+      <button class="menu-toggle" id="closeSidebar">×</button>
+    </div>
+    <ul class="nav-list">
+      <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
+      <li class="nav-item"><a href="customers.html" class="nav-link active"><i class="fas fa-users"></i> Customers</a></li>
+      <li class="nav-item"><a href="booking.html" class="nav-link"><i class="fas fa-calendar-alt"></i> Booking</a></li>
+      <li class="nav-item"><a href="campaign.html" class="nav-link"><i class="fas fa-bullhorn"></i> Campaign</a></li>
+      <li class="nav-item"><a href="feedback.html" class="nav-link"><i class="fas fa-star"></i> Feedback & Report</a></li>
+    </ul>
+  </aside>
+
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <button class="menu-toggle" id="toggleSidebar">☰</button>
+    <div>Customers</div>
+    <div class="user-area">
+      <span class="notification">🔔</span>
+      <div class="avatar"><a href="index.html">👩‍🦰</a></div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content" id="mainContent">
+
+    <div class="search-container">
+      <input type="text" class="search-input" placeholder="Search..."/>
+    </div>
+
+    <div class="customer-list">
+      <div class="customer-card" data-name="Lisa Putri" data-contact="0812-3456-7890" data-last="Today">
+        <div class="customer-info">
+          <strong>Lisa Putri</strong>
+          <span>0812-3456-7890</span>
+          <small>Last Visit: Today</small>
+        </div>
+        <button class="profile-btn">Customer Profile</button>
+      </div>
+
+      <div class="customer-card" data-name="Revanasia" data-contact="0812-3456-7890" data-last="13/08/2025">
+        <div class="customer-info">
+          <strong>Revanasia</strong>
+          <span>0812-3456-7890</span>
+          <small>Last Visit: 13/08/2025</small>
+        </div>
+        <button class="profile-btn">Customer Profile</button>
+      </div>
+
+      <div class="customer-card" data-name="Lise Program" data-contact="0811-1343-4735" data-last="13/08/2025">
+        <div class="customer-info">
+          <strong>Lise Program</strong>
+          <span>0811-1343-4735</span>
+          <small>Last Visit: 13/08/2025</small>
+        </div>
+        <button class="profile-btn">Customer Profile</button>
+      </div>
+
+      <div class="customer-card" data-name="East Dessing" data-contact="0810-2022-0316" data-last="20/08/2025">
+        <div class="customer-info">
+          <strong>East Dessing</strong>
+          <span>0810-2022-0316</span>
+          <small>Last Visit: 20/08/2025</small>
+        </div>
+        <button class="profile-btn">Customer Profile</button>
+      </div>
+
+      <div class="customer-card" data-name="Emily Meti" data-contact="0812-3456-7890" data-last="09/01/2025">
+        <div class="customer-info">
+          <strong>Emily Meti</strong>
+          <span>0812-3456-7890</span>
+          <small>Last Visit: 09/01/2025</small>
+        </div>
+        <button class="profile-btn">Customer Profile</button>
+      </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="profile-modal" id="profileModal">
+      <div class="modal-header">
+        <h3>Customer Detail</h3>
+        <button class="modal-close" id="closeModal">×</button>
+      </div>
+      <div class="modal-body">
+        <img src="https://via.placeholder.com/90x90/ffe6f2/000000?text=L" alt="Profile" class="profile-img" id="modalImg">
+        <h2 class="profile-name" id="modalName">Lisa Putri</h2>
+        <p class="profile-contact" id="modalContact">0812-3456-7890</p>
+
+        <div class="tab-buttons">
+          <button class="tab-btn active" data-tab="history">History</button>
+          <button class="tab-btn" data-tab="notes">Notes</button>
+        </div>
+
+        <div class="tab-content active" id="historyTab">
+          <ul class="preference-list">
+            <li class="preference-item"><i class="fas fa-heart heart-icon"></i> Gel Nail Art <i class="fas fa-chevron-right"></i></li>
+            <li class="preference-item"><i class="fas fa-heart heart-icon"></i> Classic Manicure <i class="fas fa-chevron-right"></i></li>
+            <li class="preference-item"><i class="fas fa-heart heart-icon"></i> Pink Floral Design <i class="fas fa-chevron-right"></i></li>
+          </ul>
+        </div>
+
+        <div class="tab-content" id="notesTab">
+          <p style="color: var(--text-light); padding: 40px 0; text-align: center;">
+            Belum ada catatan.<br>
+            <small>Tambahkan informasi penting di sini...</small>
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // Sidebar Toggle (sama dengan dashboard)
+    const toggleBtn = document.getElementById('toggleSidebar');
+    const closeBtn = document.getElementById('closeSidebar');
+    const sidebar = document.getElementById('sidebar');
+
+    function openSidebar() {
+      sidebar.classList.remove('closed');
+      sidebar.classList.add('open');
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      sidebar.classList.add('closed');
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+
+    closeBtn.addEventListener('click', closeSidebar);
+
+    document.addEventListener('click', (e) => {
+      if (window.innerWidth <= 992) {
+        const insideSidebar = sidebar.contains(e.target);
+        const onToggle = toggleBtn.contains(e.target);
+        if (!insideSidebar && !onToggle && sidebar.classList.contains('open')) {
+          closeSidebar();
+        }
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 992) {
+        sidebar.classList.remove('open', 'closed');
+        sidebar.classList.add('open');
+      } else {
+        closeSidebar();
+      }
+    });
+
+    if (window.innerWidth <= 992) closeSidebar();
+    else openSidebar();
+
+    // Modal & Tab Logic
+    const modal = document.getElementById('profileModal');
+    const closeModalBtn = document.getElementById('closeModal');
+    const modalName = document.getElementById('modalName');
+    const modalContact = document.getElementById('modalContact');
+    const modalImg = document.getElementById('modalImg');
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab + 'Tab').classList.add('active');
+      });
+    });
+
+    document.querySelectorAll('.customer-card').forEach(card => {
+      card.querySelector('.profile-btn').addEventListener('click', () => {
+        const name = card.dataset.name;
+        const contact = card.dataset.contact;
+
+        modalName.textContent = name;
+        modalContact.textContent = contact;
+        modalImg.src = `https://via.placeholder.com/90x90/ffe6f2/000000?text=${name.charAt(0)}`;
+
+        modal.classList.add('active');
+      });
+    });
+
+    closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
+    modal.addEventListener('click', e => {
+      if (e.target === modal) modal.classList.remove('active');
+    });
+  </script>
+</body>
+</html>

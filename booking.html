@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Booking & Schedule - Nill Nail Art CRM</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    :root {
+      --pink-primary: #ff69b4;
+      --pink-light: #fff0f5;
+      --pink-soft: #ffe6f2;
+      --pink-medium: #ffb6c1;
+      --text-dark: #2d2d2d;
+      --text-light: #6b7280;
+      --white: #ffffff;
+      --green-confirm: #10b981;
+      --shadow-md: 0 10px 15px -3px rgba(255,105,180,0.12);
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--pink-light);
+      color: var(--text-dark);
+      min-height: 100vh;
+    }
+
+    /* Sidebar & Top Bar (sama seperti halaman lain) */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 240px;
+      background: var(--white);
+      box-shadow: 2px 0 10px rgba(255,105,180,0.08);
+      transition: transform 0.3s ease-in-out;
+      z-index: 1000;
+      padding: 24px 20px;
+    }
+
+    .sidebar.closed { transform: translateX(-100%); }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .sidebar-header h2 { color: var(--pink-primary); font-size: 1.65rem; font-weight: 600; }
+
+    .nav-list { list-style: none; }
+
+    .nav-item { margin: 8px 0; }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--text-dark);
+      text-decoration: none;
+      padding: 12px 16px;
+      border-radius: 12px;
+      transition: all 0.2s;
+    }
+    
+    .sidebar-header button { color: var(--pink-primary);}
+
+    .nav-link:hover, .nav-link.active {
+      background: var(--pink-soft);
+      color: var(--pink-primary);
+    }
+
+    .top-bar {
+      background: var(--pink-primary);
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 900;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .menu-toggle {
+      font-size: 1.9rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: white;
+    }
+
+    .user-area { display: flex; align-items: center; gap: 20px; }
+
+    .notification { font-size: 1.5rem; cursor: pointer; }
+
+    .avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--pink-medium);
+      display: grid;
+      place-items: center;
+      font-size: 1.2rem;
+    }
+
+    .main-content {
+      padding: 32px 24px;
+      transition: margin-left 0.3s ease-in-out;
+    }
+
+    @media (min-width: 993px) {
+      .sidebar { transform: translateX(0); }
+      .main-content { margin-left: 240px; }
+      .menu-toggle { display: none; }
+    }
+
+    @media (max-width: 992px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; padding: 24px 16px; }
+    }
+
+    /* Calendar Container */
+    .calendar-container {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: var(--shadow-md);
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .calendar-header h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--pink-primary);
+      margin: 0;
+    }
+
+    .month-nav {
+      display: flex;
+      gap: 16px;
+    }
+
+    .month-nav button {
+      background: var(--pink-soft);
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      color: var(--pink-primary);
+      font-size: 1.4rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .month-nav button:hover {
+      background: var(--pink-primary);
+      color: white;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      text-align: center;
+    }
+
+    .calendar-day-header {
+      font-weight: 600;
+      color: var(--text-light);
+      padding: 12px 0;
+      font-size: 0.95rem;
+    }
+
+    .calendar-day {
+      padding: 14px 0;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+      min-height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .calendar-day:hover {
+      background: var(--pink-soft);
+      transform: scale(1.08);
+    }
+
+    .calendar-day.selected {
+      background: var(--pink-primary);
+      color: white;
+      font-weight: 700;
+      box-shadow: 0 0 0 4px rgba(255,105,180,0.25);
+    }
+
+    .calendar-day.other-month {
+      color: var(--text-light);
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .calendar-day.other-month:hover {
+      background: none;
+      transform: none;
+    }
+
+    /* Popup - lebih aman di mobile */
+    .event-popup {
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: var(--shadow-md);
+      padding: 20px 24px;
+      width: 340px;
+      margin: 24px auto 0;
+      border: 1px solid var(--pink-soft);
+      display: none;
+    }
+
+    .event-popup.active {
+      display: block;
+    }
+
+    .event-popup h3 {
+      color: var(--pink-primary);
+      margin: 0 0 16px;
+      font-size: 1.25rem;
+    }
+
+    .event-detail {
+      margin: 10px 0;
+      font-size: 0.98rem;
+    }
+
+    .event-detail strong {
+      color: var(--pink-primary);
+      min-width: 80px;
+      display: inline-block;
+    }
+
+    .status-badge {
+      background: var(--green-confirm);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: inline-block;
+      margin-top: 16px;
+    }
+
+    @media (min-width: 769px) {
+      .event-popup {
+        position: absolute;
+        width: 340px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .calendar-grid { gap: 6px; }
+      .calendar-day { padding: 10px 0; min-height: 44px; font-size: 0.9rem; }
+      .event-popup {
+        position: relative;
+        margin: 20px auto 40px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: none;
+        border: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar (copy dari halaman sebelumnya) -->
+  <aside class="sidebar closed" id="sidebar">
+    <div class="sidebar-header">
+      <h2>ZiNail Art</h2>
+      <button class="menu-toggle" id="closeSidebar">×</button>
+    </div>
+    <ul class="nav-list">
+      <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
+      <li class="nav-item"><a href="customers.html" class="nav-link"><i class="fas fa-users"></i> Customers</a></li>
+      <li class="nav-item"><a href="booking.html" class="nav-link active"><i class="fas fa-calendar-alt"></i> Booking</a></li>
+      <li class="nav-item"><a href="campaign.html" class="nav-link"><i class="fas fa-bullhorn"></i> Campaign</a></li>
+      <li class="nav-item"><a href="feedback.html" class="nav-link"><i class="fas fa-star"></i> Feedback & Report</a></li>
+    </ul>
+  </aside>
+
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <button class="menu-toggle" id="toggleSidebar">☰</button>
+    <div>Booking & Schedule</div>
+    <div class="user-area">
+      <span class="notification">🔔</span>
+      <div class="avatar"><a href="index.html">👩‍🦰</a></div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content" id="mainContent">
+    <div class="calendar-container">
+      <div class="calendar-header">
+        <div class="month-nav"><button>←</button></div>
+        <h2>December 2025</h2>
+        <div class="month-nav"><button>→</button></div>
+      </div>
+
+      <div class="calendar-grid">
+        <div class="calendar-day-header">Min</div>
+        <div class="calendar-day-header">Sen</div>
+        <div class="calendar-day-header">Sel</div>
+        <div class="calendar-day-header">Rab</div>
+        <div class="calendar-day-header">Kam</div>
+        <div class="calendar-day-header">Jum</div>
+        <div class="calendar-day-header">Sab</div>
+
+        <!-- Tanggal lengkap Desember 2025 (mulai Selasa 1 Des) -->
+        <div class="calendar-day other-month">30</div>
+        <div class="calendar-day other-month">1</div>
+        <div class="calendar-day">2</div>
+        <div class="calendar-day">3</div>
+        <div class="calendar-day">4</div>
+        <div class="calendar-day selected" data-date="5" data-client="Dina Sari" data-service="Gel Nail Art" data-time="2:00 PM">5</div>
+        <div class="calendar-day">6</div>
+
+        <div class="calendar-day">7</div>
+        <div class="calendar-day">8</div>
+        <div class="calendar-day">9</div>
+        <div class="calendar-day">10</div>
+        <div class="calendar-day">11</div>
+        <div class="calendar-day">12</div>
+        <div class="calendar-day">13</div>
+
+        <div class="calendar-day">14</div>
+        <div class="calendar-day">15</div>
+        <div class="calendar-day">16</div>
+        <div class="calendar-day">17</div>
+        <div class="calendar-day">18</div>
+        <div class="calendar-day">19</div>
+        <div class="calendar-day">20</div>
+
+        <div class="calendar-day">21</div>
+        <div class="calendar-day">22</div>
+        <div class="calendar-day">23</div>
+        <div class="calendar-day">24</div>
+        <div class="calendar-day">25</div>
+        <div class="calendar-day">26</div>
+        <div class="calendar-day">27</div>
+
+        <div class="calendar-day">28</div>
+        <div class="calendar-day">29</div>
+        <div class="calendar-day">30</div>
+        <div class="calendar-day">31</div>
+        <div class="calendar-day other-month">1</div>
+        <div class="calendar-day other-month">2</div>
+        <div class="calendar-day other-month">3</div>
+      </div>
+
+      <!-- Popup Detail Booking -->
+      <div class="event-popup active" id="eventPopup">
+        <h3>Dec 5, 2025</h3>
+        <div class="event-detail"><strong>Client:</strong> Dina Sari</div>
+        <div class="event-detail"><strong>Service:</strong> Gel Nail Art</div>
+        <div class="event-detail"><strong>Date:</strong> Dec 5, 2025</div>
+        <div class="event-detail"><strong>Time:</strong> 2:00 PM</div>
+        <div class="status-badge">Confirmed</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Sidebar toggle (sama seperti halaman lain)
+    const toggleBtn = document.getElementById('toggleSidebar');
+    const closeBtn = document.getElementById('closeSidebar');
+    const sidebar = document.getElementById('sidebar');
+
+    function openSidebar() { sidebar.classList.remove('closed'); sidebar.classList.add('open'); }
+    function closeSidebar() { sidebar.classList.remove('open'); sidebar.classList.add('closed'); }
+
+    toggleBtn.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+    closeBtn.addEventListener('click', closeSidebar);
+
+    document.addEventListener('click', e => {
+      if (window.innerWidth <= 992 && !sidebar.contains(e.target) && !toggleBtn.contains(e.target) && sidebar.classList.contains('open')) {
+        closeSidebar();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 992) {
+        sidebar.classList.remove('open', 'closed');
+        sidebar.classList.add('open');
+      } else closeSidebar();
+    });
+
+    if (window.innerWidth <= 992) closeSidebar(); else openSidebar();
+
+    // Calendar & Popup Logic
+    const eventPopup = document.getElementById('eventPopup');
+
+    function showPopupForDay(day) {
+      document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
+      day.classList.add('selected');
+
+      const date = day.textContent.padStart(2, '0');
+      const client = day.dataset.client || 'Belum ada jadwal';
+      const service = day.dataset.service || '-';
+      const time = day.dataset.time || '-';
+      const status = day.dataset.status || 'No Booking';
+
+      eventPopup.innerHTML = `
+        <h3>Dec ${date}, 2025</h3>
+        <div class="event-detail"><strong>Client:</strong> ${client}</div>
+        <div class="event-detail"><strong>Service:</strong> ${service}</div>
+        <div class="event-detail"><strong>Date:</strong> Dec ${date}, 2025</div>
+        <div class="event-detail"><strong>Time:</strong> ${time}</div>
+        <div class="status-badge">${status}</div>
+      `;
+
+      eventPopup.classList.add('active');
+    }
+
+    // Inisial tampilkan untuk tanggal terpilih
+    const initialSelected = document.querySelector('.calendar-day.selected');
+    if (initialSelected) showPopupForDay(initialSelected);
+
+    // Klik setiap hari
+    document.querySelectorAll('.calendar-day:not(.other-month)').forEach(day => {
+      day.addEventListener('click', () => showPopupForDay(day));
+    });
+  </script>
+</body>
+</html>
