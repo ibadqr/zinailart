@@ -494,7 +494,10 @@
 
         modalName.textContent = name;
         modalContact.textContent = contact;
-        modalImg.src = `https://via.placeholder.com/90x90/ffe6f2/000000?text=${name.charAt(0)}`;
+        
+        // Gambar profil menggunakan file profile.jpg (tidak berubah saat ganti customer)
+        // Jika ingin gambar berbeda per customer, bisa tambah data-attribute di card
+        modalImg.src = "Profile.jpg";  // <-- ini yang kamu minta
 
         modal.classList.add('active');
       });
