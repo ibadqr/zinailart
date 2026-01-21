@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Feedback & Reports - Nill Nail Art CRM</title>
+  <title>Feedback & Reports - ZiNail Art CRM</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
 
@@ -17,6 +17,7 @@
       --text-light: #6b7280;
       --white: #ffffff;
       --shadow-md: 0 10px 15px -3px rgba(255,105,180,0.12);
+      --reply-bg: #f9f9f9;
     }
 
     * { margin:0; padding:0; box-sizing:border-box; }
@@ -127,9 +128,9 @@
       .main-content { margin-left: 0; padding: 24px 16px; }
     }
 
-    /* Reports Layout - 3 cards */
+    /* Reports Layout */
     .reports-container {
-      max-width: 1200px;
+      max-width: 1100px;
       margin: 0 auto;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
@@ -145,43 +146,49 @@
 
     .card h2 {
       color: var(--pink-primary);
-      margin: 0 0 20px;
+      margin: 0 0 24px;
       font-size: 1.45rem;
       font-weight: 600;
     }
 
-    /* Client Feedback */
-    .feedback-list {
+    /* Testimoni Komenan Style */
+    .testimoni-list {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 24px;
     }
 
-    .feedback-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-      padding: 16px;
+    .testimoni-item {
       background: var(--pink-soft);
       border-radius: 16px;
+      padding: 20px;
     }
 
-    .feedback-avatar {
-      width: 56px;
-      height: 56px;
+    .testimoni-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .testimoni-avatar {
+      width: 50px;
+      height: 50px;
       border-radius: 50%;
       background: var(--pink-medium);
-      display: grid;
-      place-items: center;
-      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      color: white;
       flex-shrink: 0;
     }
 
-    .feedback-content {
+    .testimoni-info {
       flex: 1;
     }
 
-    .feedback-name {
+    .testimoni-name {
       font-weight: 600;
       color: var(--pink-primary);
       margin-bottom: 4px;
@@ -190,15 +197,43 @@
     .stars {
       color: #ffd700;
       font-size: 1.2rem;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
     }
 
-    .feedback-text {
+    .testimoni-text {
       color: var(--text-dark);
-      font-size: 0.98rem;
+      font-size: 1rem;
+      line-height: 1.5;
+      margin-bottom: 16px;
     }
 
-    /* Sales Report */
+    .admin-reply {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--pink-medium);
+      font-size: 0.98rem;
+      color: var(--text-dark);
+      position: relative;
+      margin-left: 20px;
+    }
+
+    .admin-reply::before {
+      content: "";
+      position: absolute;
+      left: -10px;
+      top: 20px;
+      border: 10px solid transparent;
+      border-right-color: var(--white);
+    }
+
+    .admin-reply strong {
+      color: var(--pink-primary);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    /* Sales Report & Pie Chart */
     .sales-info {
       margin-bottom: 24px;
     }
@@ -210,12 +245,11 @@
     }
 
     .sales-info p {
-      font-size: 1.8rem;
+      font-size: 1.9rem;
       font-weight: 700;
       color: var(--text-dark);
     }
 
-    /* Pie Chart */
     .chart-container {
       height: 260px;
       position: relative;
@@ -227,6 +261,7 @@
       justify-content: center;
       gap: 24px;
       flex-wrap: wrap;
+      margin-top: 16px;
       font-size: 0.95rem;
       color: var(--text-light);
     }
@@ -242,7 +277,7 @@
       height: 14px;
       border-radius: 4px;
     }
-
+    
     /* Card ketiga - Loyalty Summary */
     .loyalty-summary {
       margin-top: 20px;
@@ -252,7 +287,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 0;
+      padding: 10px 0;
       border-bottom: 1px solid var(--pink-soft);
     }
 
@@ -268,9 +303,7 @@
     }
 
     @media (max-width: 992px) {
-      .reports-container {
-        grid-template-columns: 1fr;
-      }
+      .reports-container { grid-template-columns: 1fr; }
       .chart-container { height: 240px; }
     }
   </style>
@@ -288,7 +321,7 @@
       <li class="nav-item"><a href="customers.html" class="nav-link"><i class="fas fa-users"></i> Customers</a></li>
       <li class="nav-item"><a href="booking.html" class="nav-link"><i class="fas fa-calendar-alt"></i> Booking</a></li>
       <li class="nav-item"><a href="campaign.html" class="nav-link"><i class="fas fa-bullhorn"></i> Campaign</a></li>
-      <li class="nav-item"><a href="feedback.html" class="nav-link active"><i class="fas fa-star"></i> Feedback & Report</a></li>
+      <li class="nav-item"><a href="#" class="nav-link active"><i class="fas fa-star"></i> Feedback & Report</a></li>
     </ul>
   </aside>
 
@@ -306,27 +339,65 @@
   <main class="main-content" id="mainContent">
     <div class="reports-container">
 
-      <!-- Card 1: Client Feedback -->
+      <!-- Card 1: Testimoni Pelanggan (model komenan) -->
       <div class="card">
-        <h2>Client Feedback</h2>
-        <div class="feedback-list">
-          <div class="feedback-item">
-            <div class="feedback-avatar">A</div>
-            <div class="feedback-content">
-              <div class="feedback-name">Great service! ★★★★★</div>
-              <div class="stars">★★★★★</div>
-              <div class="feedback-text">Anisa</div>
+        <h2>Testimoni Pelanggan</h2>
+        <div class="testimoni-list">
+
+          <!-- Testimoni 1 -->
+          <div class="testimoni-item">
+            <div class="testimoni-header">
+              <div class="testimoni-avatar">A</div>
+              <div class="testimoni-info">
+                <div class="testimoni-name">Anisa Putri</div>
+                <div class="stars">★★★★★</div>
+              </div>
+            </div>
+            <div class="testimoni-text">
+              Pelayanannya super ramah! Nail art-nya cantik banget dan awet lebih dari 3 minggu tanpa ngelupas. Recommended banget!
+            </div>
+            <div class="admin-reply">
+              <strong>Balasan dari Admin:</strong>
+              Terima kasih banyak Anisa atas review-nya! Senang sekali kamu puas dengan hasilnya. Ditunggu lagi ya untuk desain berikutnya 💅✨
             </div>
           </div>
 
-          <div class="feedback-item">
-            <div class="feedback-avatar">E</div>
-            <div class="feedback-content">
-              <div class="feedback-name">Love my nails! ★★★★☆</div>
-              <div class="stars">★★★★☆</div>
-              <div class="feedback-text">Erika</div>
+          <!-- Testimoni 2 -->
+          <div class="testimoni-item">
+            <div class="testimoni-header">
+              <div class="testimoni-avatar">E</div>
+              <div class="testimoni-info">
+                <div class="testimoni-name">Erika Lestari</div>
+                <div class="stars">★★★★☆</div>
+              </div>
+            </div>
+            <div class="testimoni-text">
+              Desainnya sesuai banget sama request saya. Cuma agak lama prosesnya karena ramai, tapi hasilnya worth it!
+            </div>
+            <div class="admin-reply">
+              <strong>Balasan dari Admin:</strong>
+              Makasih Erika atas feedback jujurnya! Kami akan terus tingkatkan pelayanan agar lebih cepat dan nyaman. Next time kami kasih prioritas ya 😊
             </div>
           </div>
+
+          <!-- Testimoni 3 (contoh tambahan) -->
+          <div class="testimoni-item">
+            <div class="testimoni-header">
+              <div class="testimoni-avatar">S</div>
+              <div class="testimoni-info">
+                <div class="testimoni-name">Sari Rahayu</div>
+                <div class="stars">★★★★★</div>
+              </div>
+            </div>
+            <div class="testimoni-text">
+              Tempatnya bersih, pegawainya sabar banget jelasin step by step. Harga juga terjangkau untuk kualitas segini.
+            </div>
+            <div class="admin-reply">
+              <strong>Balasan dari Admin:</strong>
+              Senang sekali dengar testimoni positif dari kamu, Sari! Terima kasih sudah mempercayakan kuku kamu ke kami. Sampai jumpa lagi ya 💖
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -359,7 +430,7 @@
         </div>
       </div>
 
-      <!-- Card 3: Loyalty Summary (tambahan agar lebih lengkap & seimbang) -->
+      <!-- Card 3: Loyalty Summary -->
       <div class="card">
         <h2>Loyalty Summary</h2>
         <div class="loyalty-summary">
